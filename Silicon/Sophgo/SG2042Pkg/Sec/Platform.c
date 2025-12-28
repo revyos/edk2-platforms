@@ -160,7 +160,7 @@ PlatformPeimInitialization (
   //
   // Add SDHI resource
   //
-  PopulateIoResources (Base, "bitmain,bm-sd");
+  PopulateIoResources (Base, "sophgo,sg2042-dwcmshc");
 
   return EFI_SUCCESS;
 }
