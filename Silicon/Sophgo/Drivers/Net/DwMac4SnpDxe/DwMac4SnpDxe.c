@@ -1587,7 +1587,7 @@ DwMac4SnpDxeEntry (
 
   Status = FdtClient->FindCompatibleNode (
     FdtClient,
-    "sophgo,ethernet",
+    "sophgo,sg2042-dwmac",
     &Node
   );
   if (Status == EFI_NOT_FOUND) {
