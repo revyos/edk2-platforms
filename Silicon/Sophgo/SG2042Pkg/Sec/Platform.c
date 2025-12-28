@@ -150,7 +150,7 @@ PlatformPeimInitialization (
   //
   // Add PCI resource
   //
-  PopulateIoResources (Base, "sophgo,cdns-pcie-host");
+  PopulateIoResources (Base, "sophgo,sg2042-pcie-host");
 
   //
   // 3GB - 4GB memory space is reserved for PCIe 32-bit inbound access.

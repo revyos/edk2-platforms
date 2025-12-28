@@ -205,10 +205,7 @@ GetPcieEnableMask (
   INT32                Node;
   CONST VOID           *Prop;
   UINT32               PropSize;
-  UINT32               SegmentIndex;
-  UINT16               SocketIndex;
   UINT16               PortIndex;
-  UINT16               LinkIndex;
   UINT8                PcieEnableMask;
 
   PcieEnableMask = PcdGet8 (PcdMangoPcieEnableMask);
@@ -222,7 +219,7 @@ GetPcieEnableMask (
 
   for (FindNodeStatus = FdtClient->FindCompatibleNode (
                                      FdtClient,
-                                     "sophgo,cdns-pcie-host",
+                                     "sophgo,sg2042-pcie-host",
                                      &Node
                                      );
 
@@ -230,11 +227,29 @@ GetPcieEnableMask (
 
     FindNodeStatus = FdtClient->FindNextCompatibleNode (
                                      FdtClient,
-                                     "sophgo,cdns-pcie-host",
+                                     "sophgo,sg2042-pcie-host",
                                      Node,
                                      &Node
                                      ))
   {
+    Status = FdtClient->GetNodeProperty (
+                      FdtClient,
+                      Node,
+                      "status",
+                      &Prop,
+                      &PropSize
+                      );
+
+    if (!EFI_ERROR (Status)) {
+        if (AsciiStrCmp ((CHAR8 *)Prop, "okay") != 0) {
+            DEBUG ((DEBUG_INFO, "%a: Device is disabled, skipping.\n", __func__));
+            break;
+        }
+    } else {
+      DEBUG ((DEBUG_ERROR, "%a: Device is disabled, skipping.\n", __func__));
+      return Status;
+    }
+
     Status = FdtClient->GetNodeProperty (
                                 FdtClient,
                                 Node,
@@ -252,82 +267,9 @@ GetPcieEnableMask (
       return Status;
     }
 
-    SegmentIndex = SwapBytes32 (((CONST UINT32 *) Prop)[0]);
+    PortIndex = SwapBytes32 (((CONST UINT32 *) Prop)[0]);
 
-    Status = FdtClient->GetNodeProperty (
-                                FdtClient,
-                                Node,
-                                "socket-id",
-                                &Prop,
-                                &PropSize
-                                );
-    if (EFI_ERROR (Status)) {
-      DEBUG ((
-        DEBUG_ERROR,
-        "%a: Get socket-id failed (Status = %r)\n",
-        __func__,
-        Status
-        ));
-      return Status;
-    }
-
-    SocketIndex = SwapBytes16 (((CONST UINT16 *) Prop)[0]);
-
-    Status = FdtClient->GetNodeProperty (
-                                FdtClient,
-                                Node,
-                                "pcie-id",
-                                &Prop,
-                                &PropSize
-                                );
-    if (EFI_ERROR (Status)) {
-      DEBUG ((
-        DEBUG_ERROR,
-        "%a: Get pcie-id failed (Status = %r)\n",
-        __func__,
-        Status
-        ));
-      return Status;
-    }
-
-    PortIndex = SwapBytes16 (((CONST UINT16 *) Prop)[0]);
-
-    Status = FdtClient->GetNodeProperty (
-                                FdtClient,
-                                Node,
-                                "link-id",
-                                &Prop,
-                                &PropSize
-                                );
-    if (EFI_ERROR (Status)) {
-      DEBUG ((
-        DEBUG_ERROR,
-        "%a: Get link-id failed (Status = %r)\n",
-        __func__,
-        Status
-        ));
-      return Status;
-    }
-
-    LinkIndex = SwapBytes16 (((CONST UINT16 *) Prop)[0]);
-
-    /* Check validation */
-    if (SocketIndex >= PCIE_MAX_SOCKET || PortIndex >= PCIE_MAX_PORT || LinkIndex >= PCIE_MAX_LINK) {
-      DEBUG (( DEBUG_ERROR, "Invalid PCIe controller [%d:%d:%d]\n",
-               SocketIndex, PortIndex, LinkIndex ));
-      return EFI_OUT_OF_RESOURCES;
-    }
-
-    DEBUG (( DEBUG_INFO, "Find PCIe controller controller [%d, %d:%d:%d]\n",
-	     SegmentIndex, SocketIndex, PortIndex, LinkIndex ));
-
-    if (SegmentIndex != LinkIndex + PortIndex * PCIE_MAX_LINK + SocketIndex * PCIE_MAX_PORT * PCIE_MAX_LINK) {
-      DEBUG (( DEBUG_ERROR, "Invalid linux,pci-domain number %d of controller [%d:%d:%d]\n",
-               SegmentIndex, SocketIndex, PortIndex, LinkIndex ));
-      return EFI_INVALID_PARAMETER;
-    }
-
-    PcieEnableMask |= 1 << (SocketIndex * PCIE_MAX_PORT * PCIE_MAX_LINK + PortIndex * PCIE_MAX_LINK + LinkIndex);
+    PcieEnableMask |= 1 << PortIndex;
   }
 
   PcdSet8S (PcdMangoPcieEnableMask, PcieEnableMask);
