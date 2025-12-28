@@ -315,7 +315,7 @@ MangoPcieHostBridgeLibConstructor (
   UINT32  NoBarNbits;
   UINT8   PcieEnableMask;
 
-  VendorId = 0x17CD;
+  VendorId = 0x1F1C;
   DeviceId = 0x2042;
 
   //
