@@ -67,12 +67,17 @@
   BaseMemoryLib
   DebugLib
   HiiLib
+  HobLib
+  FdtLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
   UefiLib
   IniParserLib
   ConfigUtilsLib
   RiscVSbiLib
+
+[Guids]
+  gFdtHobGuid
 
 [Protocols]
   gEfiSmbiosProtocolGuid                            ## CONSUMED

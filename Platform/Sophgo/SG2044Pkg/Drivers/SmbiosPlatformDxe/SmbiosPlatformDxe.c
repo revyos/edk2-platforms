@@ -19,10 +19,13 @@
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
 #include <Library/HiiLib.h>
+#include <Library/HobLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PrintLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/IniParserLib.h>
+
+#include <libfdt.h>
 
 #include "SmbiosPlatformDxe.h"
 
@@ -34,6 +37,116 @@ STATIC EFI_STRING           mDefaultHiiDatabaseStr;
 STATIC EFI_SMBIOS_PROTOCOL  *mPlatformDxeSmbios = NULL;
 
 EFI_HII_HANDLE  mSmbiosPlatformDxeHiiHandle;
+
+
+STATIC
+EFI_STATUS
+SmbiosPlatformDriverModelFromFdtHob (
+  OUT CONST CHAR8           **Model
+  )
+{
+  VOID                        *Hob;
+  VOID                        *DtbBase;
+  INT32                       DtRootOffset;
+  INT32                       ModelLen;
+  CONST struct fdt_property   *ModelProperty;
+
+  Hob = GetFirstGuidHob (&gFdtHobGuid);
+  if (Hob == NULL || GET_GUID_HOB_DATA_SIZE (Hob) != sizeof (UINT64)) {
+    DEBUG ((DEBUG_ERROR, "No FDT HOB\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  DtbBase = (VOID*)(UINTN)*(UINT64 *)GET_GUID_HOB_DATA(Hob);
+
+  if (fdt_check_header (DtbBase) != 0) {
+    DEBUG ((DEBUG_ERROR, "Bad FDT\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  DtRootOffset = fdt_path_offset (DtbBase, "/");
+
+  if (DtRootOffset < 0) {
+    DEBUG ((DEBUG_ERROR, "Bad FDT\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  ModelProperty = fdt_get_property (DtbBase, DtRootOffset, "model", &ModelLen);
+
+  if (ModelProperty == NULL) {
+    DEBUG ((DEBUG_ERROR, "No \"model\" FDT property\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  //
+  // Check NUL-termination
+  //
+  if (ModelLen <= 0 || ModelProperty->data[ModelLen - 1] != '\0') {
+    DEBUG ((DEBUG_ERROR, "Bad \"model\" FDT property\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  *Model = ModelProperty->data;
+
+  return EFI_SUCCESS;
+}
+
+STATIC
+EFI_STATUS
+SmbiosPlatformDriverPatchSmbiosString (
+  EFI_SMBIOS_PROTOCOL *Smbios,
+  EFI_SMBIOS_TYPE     Type,
+  UINTN               StringNumber,
+  CHAR8               *String
+  )
+{
+  EFI_STATUS                Status;
+  EFI_SMBIOS_HANDLE         SmbiosHandle;
+  EFI_SMBIOS_TABLE_HEADER   *SmbiosRecord;
+
+  Status = Smbios->GetNext (Smbios, &SmbiosHandle, &Type, &SmbiosRecord, NULL);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "No SMBIOS record of type %d, not patching\n", Type));
+    return Status;
+  }
+
+  Status = Smbios->UpdateString (Smbios, &SmbiosHandle, &StringNumber, String);
+
+  return Status;
+}
+
+STATIC
+EFI_STATUS
+SmbiosPlatformDriverPatchModelFromFdtHob (
+  VOID
+  )
+{
+  EFI_STATUS                Status;
+  CONST CHAR8               *Model;
+  EFI_SMBIOS_PROTOCOL       *Smbios;
+
+  Status = SmbiosPlatformDriverModelFromFdtHob (&Model);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  Status = gBS->LocateProtocol (
+                  &gEfiSmbiosProtocolGuid,
+                  NULL,
+                  (VOID **)&Smbios
+                  );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Ignore error for these, just skip if can't patch
+  //
+  SmbiosPlatformDriverPatchSmbiosString (Smbios, SMBIOS_TYPE_SYSTEM_INFORMATION, 2, (CHAR8*) Model);
+  SmbiosPlatformDriverPatchSmbiosString (Smbios, SMBIOS_TYPE_BASEBOARD_INFORMATION, 2, (CHAR8*) Model);
+
+  return EFI_SUCCESS;
+}
 
 /**
   Standard EFI driver point. This driver parses the mSmbiosPlatformDataTable
@@ -122,6 +235,11 @@ SmbiosPlatformDxeEntry (
   // Free buffer after all Tables were installed
   //
   FreePool (mDefaultHiiDatabaseStr);
+
+  //
+  // Ignore error from patching SMBIOS from DT model property
+  //
+  SmbiosPlatformDriverPatchModelFromFdtHob ();
 
   return Status;
 }
