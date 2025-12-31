@@ -61,6 +61,7 @@
   BaseLib
   BaseMemoryLib
   DebugLib
+  FdtLib
   HiiLib
   HobLib
   UefiBootServicesTableLib
@@ -78,6 +79,7 @@
 
 [Pcd]
   gSophgoSG2044PlatformPkgTokenSpaceGuid.PcdBiosVersionString
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdForceNoAcpi
   gSophgoTokenSpaceGuid.PcdMisa
   gSophgoSG2044PlatformPkgTokenSpaceGuid.PcdPcieHostBridgeTable
   gSophgoSG2044PlatformPkgTokenSpaceGuid.PcdCpuCount
