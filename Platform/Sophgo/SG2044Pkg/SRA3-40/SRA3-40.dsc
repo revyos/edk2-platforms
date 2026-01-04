@@ -777,9 +777,7 @@
 ################################################################################
 
 [PcdsDynamicDefault]
-!if $(FLASH_ENABLE) == FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
-!endif
 
   #gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosVersion|0x0208
   #gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosDocRev|0x0
