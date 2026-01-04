@@ -141,7 +141,7 @@ SecInitializePlatform (
   VOID
   )
 {
-  // EFI_STATUS  Status;
+  EFI_STATUS  Status;
   FIRMWARE_SEC_PERFORMANCE      Performance;
   UINT64                        StartTimeStamp;
 
@@ -152,6 +152,9 @@ SecInitializePlatform (
   // Build SEC Performance Data Hob
   BuildGuidDataHob (&gEfiFirmwarePerformanceGuid, &Performance, sizeof (Performance));
   BuildFvHob (PcdGet32 (PcdRiscVDxeFvBase), PcdGet32 (PcdRiscVDxeFvSize));
+
+  Status = PlatformPeimInitialization ();
+  ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
 }

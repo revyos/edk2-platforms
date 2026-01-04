@@ -315,6 +315,7 @@
   ReportStatusCodeLib|MdeModulePkg/Library/PeiReportStatusCodeLib/PeiReportStatusCodeLib.inf
   ExtractGuidedSectionLib|MdePkg/Library/BaseExtractGuidedSectionLib/BaseExtractGuidedSectionLib.inf
   PlatformSecLib|UefiCpuPkg/Library/PlatformSecLibNull/PlatformSecLibNull.inf
+  PlatformPeiLib|Silicon/Sophgo/Modules/PlatformPei/PlatformPeiLib.inf
 
 !ifdef $(SOURCE_DEBUG_ENABLE)
   DebugAgentLib|SourceLevelDebugPkg/Library/DebugAgent/SecPeiDebugAgentLib.inf
@@ -984,10 +985,10 @@
   }
 
   ArmVirtPkg/CloudHvPlatformHasAcpiDtDxe/CloudHvHasAcpiDtDxe.inf
-  # EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf {
-  #   <LibraryClasses>
-  #     DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
-  # }
+  EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf {
+    <LibraryClasses>
+      DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+  }
 
   MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
 

@@ -50,6 +50,7 @@
   HobLib
   SerialPortLib
   PeCoffGetEntryPointLib
+  PlatformPeiLib
 
 [FixedPcd]
   gUefiRiscVPlatformPkgTokenSpaceGuid.PcdRiscVDxeFvBase                         ## CONSUMES
