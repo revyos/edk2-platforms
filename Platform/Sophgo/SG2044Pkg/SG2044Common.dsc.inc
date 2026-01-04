@@ -420,6 +420,12 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdPciDegradeResourceForOptionRom|FALSE
 
 [PcdsFixedAtBuild]
+!if $(ACPI_ENABLE) == TRUE
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdForceNoAcpi|FALSE
+!else
+  gUefiRiscVPlatformPkgTokenSpaceGuid.PcdForceNoAcpi|TRUE
+!endif
+
   gEfiMdeModulePkgTokenSpaceGuid.PcdStatusCodeUseMemory|FALSE
   gEfiMdeModulePkgTokenSpaceGuid.PcdStatusCodeUseSerial|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdStatusCodeMemorySize|1
@@ -826,7 +832,7 @@
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   }
 
-  ArmVirtPkg/CloudHvPlatformHasAcpiDtDxe/CloudHvHasAcpiDtDxe.inf
+  Platform/RISC-V/PlatformPkg/Drivers/PlatformHasAcpiDtDxe/PlatformHasAcpiDtDxe.inf
   # EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf {
   #   <LibraryClasses>
   #     DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
