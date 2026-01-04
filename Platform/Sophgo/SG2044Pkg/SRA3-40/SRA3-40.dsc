@@ -73,6 +73,9 @@
 
 !include Platform/Sophgo/SG2044Pkg/SG2044Common.dsc.inc
 
+[PcdsDynamicDefault]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
+
 ################################################################################
 #
 # Variant-specific PCDs (board identity + MCU/SSIF I2C bus numbers).
