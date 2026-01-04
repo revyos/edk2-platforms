@@ -217,6 +217,8 @@ SecStartup (
   UINT32                      FdtSize;
   UINTN                       FdtPages;
   VOID                        *FdtCopy;
+  INT32                       FdtStatus;
+  INT32                       ChosenNode;
   RISCV_SEC_HANDOFF_DATA      SecHandoffData;
   const EFI_GUID              SecHobDataGuid = RISCV_SEC_HANDOFF_HOB_GUID;
 
@@ -274,10 +276,26 @@ SecStartup (
   FdtCopy  = AllocatePages (FdtPages);
 
   if (FdtCopy != NULL) {
-    FdtOpenInto (DeviceTreeAddress, FdtCopy, EFI_PAGES_TO_SIZE (FdtPages));
-    FdtHobData = BuildGuidHob (&gFdtHobGuid, sizeof *FdtHobData);
-    if (FdtHobData != NULL) {
-      *FdtHobData = (UINT64)(UINTN)FdtCopy;
+    FdtStatus = FdtOpenInto (
+                  DeviceTreeAddress,
+                  FdtCopy,
+                  EFI_PAGES_TO_SIZE (FdtPages)
+                  );
+    if (FdtStatus == 0) {
+      ChosenNode = FdtPathOffset (FdtCopy, "/chosen");
+      if (ChosenNode >= 0) {
+        // Do not pass stale initrd addresses from the previous boot stage.
+        FdtDelProp (FdtCopy, ChosenNode, "linux,initrd-start");
+        FdtDelProp (FdtCopy, ChosenNode, "linux,initrd-end");
+      }
+
+      FdtHobData = BuildGuidHob (&gFdtHobGuid, sizeof *FdtHobData);
+      if (FdtHobData != NULL) {
+        *FdtHobData = (UINT64)(UINTN)FdtCopy;
+      }
+    } else {
+      DEBUG ((DEBUG_ERROR, "%a: Failed to copy FDT: %d\n", __func__, FdtStatus));
+      FdtCopy = NULL;
     }
   }
 
