@@ -92,6 +92,7 @@ INF  Silicon/Sophgo/Drivers/DwGpioDxe/DwGpioDxe.inf
 # RISC-V Core Drivers
 INF  UefiCpuPkg/CpuTimerDxeRiscV64/CpuTimerDxeRiscV64.inf
 INF  UefiCpuPkg/CpuDxeRiscV64/CpuDxeRiscV64.inf
+INF  Silicon/RISC-V/ProcessorPkg/Universal/FdtDxe/FdtDxe.inf
 
 INF  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
 INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
