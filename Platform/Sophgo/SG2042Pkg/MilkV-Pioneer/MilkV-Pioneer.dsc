@@ -442,6 +442,7 @@
 ################################################################################
 
 [PcdsDynamicDefault]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdPciDisableBusEnumeration|FALSE
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosVersion|0x0208
