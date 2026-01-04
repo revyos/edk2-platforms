@@ -46,7 +46,7 @@
 
   DEFINE FLASH_ENABLE             = TRUE
   DEFINE ETH_ENABLE               = FALSE
-  DEFINE ACPI_ENABLE              = TRUE
+  DEFINE ACPI_ENABLE              = FALSE
 
   #
   # BMC: FALSE on SD3-10-LB (no BMC). BMC_SSIF_ENABLE is irrelevant when

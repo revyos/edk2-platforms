@@ -46,7 +46,7 @@
 
   DEFINE FLASH_ENABLE             = TRUE
   DEFINE ETH_ENABLE               = FALSE
-  DEFINE ACPI_ENABLE              = TRUE
+  DEFINE ACPI_ENABLE              = FALSE
 
   #
   # Prebuilt Intel UNDI drivers (native RISCV64 PE32): Gigabit, 10G (ixgbe/X540),
