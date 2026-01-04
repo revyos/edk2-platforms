@@ -833,10 +833,10 @@
   }
 
   Platform/RISC-V/PlatformPkg/Drivers/PlatformHasAcpiDtDxe/PlatformHasAcpiDtDxe.inf
-  # EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf {
-  #   <LibraryClasses>
-  #     DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
-  # }
+  EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf {
+    <LibraryClasses>
+      DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+  }
 
   MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
 
