@@ -36,6 +36,7 @@ PlatformPeimInitialization (
   UINT64                      *FdtHobData;
   VOID                        *DeviceTreeAddress;
   EFI_RISCV_FIRMWARE_CONTEXT  *FirmwareContext;
+  INT32                       ChosenNode;
 
   FirmwareContext = NULL;
   GetFirmwareContextPointer (&FirmwareContext);
@@ -71,6 +72,13 @@ PlatformPeimInitialization (
   }
 
   fdt_open_into (Base, NewBase, EFI_PAGES_TO_SIZE (FdtPages));
+
+  ChosenNode = fdt_path_offset (NewBase, "/chosen");
+  if (ChosenNode >= 0) {
+    // Ignore errors here. It is okay if these are not found.
+    fdt_delprop (NewBase, ChosenNode, "linux,initrd-start");
+    fdt_delprop (NewBase, ChosenNode, "linux,initrd-end");
+  }
 
   FdtHobData = BuildGuidHob (&gFdtHobGuid, sizeof *FdtHobData);
   if (FdtHobData == NULL) {
