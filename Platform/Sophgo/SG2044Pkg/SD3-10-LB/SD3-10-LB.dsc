@@ -58,7 +58,7 @@
   #
   # RTC: Ds1307 hardware RTC.
   #
-  DEFINE RTC_VIRTUAL              = FALSE
+  DEFINE RTC_VIRTUAL              = TRUE
 
   #
   # Sietium GPU GOP driver (only on SD3-10 / SD3-10-LB).
